@@ -85,6 +85,14 @@ public void setRoles(String roles) {
 
 
 
+@Override
+public String toString() {
+	return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password + ", Roles=" + Roles
+			+ "]";
+}
+
+
+
 
 
 
