@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.app.FirstApp.domain.Entity.Role;
 import com.app.FirstApp.domain.Entity.User;
+import com.app.FirstApp.domain.SaveMethodes.CryptID;
 import com.app.FirstApp.domain.Services.UserService;
 
 @SpringBootApplication
@@ -25,12 +26,12 @@ public class PfeAuthApplication {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	
 @Bean
 	CommandLineRunner run(UserService userService) {
 		return args -> {
-			//userService.saveRole(new Role("Add"));
-			//userService.saveUser(new User("moetez", "moetezmaddouri@gmail.com", "12356sdf", new ArrayList<>()));
-		
+			
+		/*
 			List<Role> roles =new ArrayList<>();
 			roles.add(new Role("consulter_users"));
 			roles.add(new Role("ajouter_users"));
@@ -39,7 +40,13 @@ public class PfeAuthApplication {
 			//System.out.println(userService.getUsers());
 			List<Role> rolesUser2 =new ArrayList<>();
 			rolesUser2.add(new Role("consulter_users"));
-			userService.saveUser(new User("moetez", "moetezmaddouri@gmail.com", "root123", rolesUser2));
+			userService.saveUser(new User("moetez", "moetezmaddouri@gmail.com", "root123", rolesUser2));*/
+			/*List<Role> roles =new ArrayList<>();
+			roles.add(new Role("consulter_users"));
+			roles.add(new Role("ajouter_users"));
+			roles.add(new Role("add_Sf"));
+			System.out.println("role main : "+roles);
+			userService.saveUser(new User("Admin", "moetezmaddouri13@gmail.com", "root123", roles));*/
 
 			
 		};

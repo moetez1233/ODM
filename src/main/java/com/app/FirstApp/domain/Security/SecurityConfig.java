@@ -41,7 +41,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.authorizeRequests().antMatchers("/api/login","/api/token/refresh/**").permitAll();
 		http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/**").hasAnyAuthority("consulter_users"); //authorize only role =role_User to pass requet GET :http://localhost:9098/api/users
-		http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/save/**").hasAnyAuthority("ajouter_users"); //authorize only role =role_User to pass requet GET :http://localhost:9098/api/users/save
+		http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/save/**").hasAnyAuthority("ajouter_users"); //authorize only role =role_User to pass requet POST :http://localhost:9098/api/users/save
+		http.authorizeRequests().antMatchers(HttpMethod.PUT,"/api/users/update/**").hasAnyAuthority("consulter_users"); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/update
+		http.authorizeRequests().antMatchers(HttpMethod.DELETE,"/api/users/delete/**").hasAnyAuthority("spprimer_users"); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
 		http.authorizeRequests().anyRequest().authenticated();
 		/* =============== our filtre =================== */
 		http.addFilter(custumAuthenticationFilter);

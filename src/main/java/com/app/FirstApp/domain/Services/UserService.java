@@ -7,14 +7,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import com.app.FirstApp.domain.Entity.Role;
 import com.app.FirstApp.domain.Entity.User;
+import com.app.FirstApp.domain.Entity.UserResp;
 
 public interface UserService extends UserDetailsService  {
-	User saveUser(User user);
+	UserResp saveUser(User user);
 	Role saveRole(Role role);
-void addRoleToUser(String email);
+//void addRoleToUser(String email);
 
 	User getUser(String email);
-	List<User> getUsers(); 
+	UserResp updateUser(User user);
+	void deletUser(String email);
+	List<UserResp> getUsers(); 
 	
 
 }
