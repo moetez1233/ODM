@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.HttpClientErrorException.Forbidden;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.app.FirstApp.domain.Entity.Role;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -39,7 +40,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
 		if (request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh") ) {
 			filterChain.doFilter(request, response); // let user connect
 		} else {
-
+System.out.println("hello");
 			String authorisationHeader = request.getHeader(AUTHORIZATION);
 			if (authorisationHeader != null && authorisationHeader.startsWith("ODM ")) {
 				try {
@@ -52,12 +53,20 @@ public class AuthorisationFilter extends OncePerRequestFilter {
 					//String roles = decodedJWT.getClaim("roles").asString();
 					
 				
-					String[] rolesTest = decodedJWT.getClaim("roles").asArray(String.class);
-					System.out.println(rolesTest[0]);
+					Role[] rolesTest = decodedJWT.getClaim("roles").asArray(Role.class);
+					
 					Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 					//stream(roles).forEach(role ->authorities.add(new SimpleGrantedAuthority(role)));					 	
-					  
-					authorities.add(new SimpleGrantedAuthority(rolesTest[0]));
+					/*for(Role role :rolAuth) {
+						authorities.add(new SimpleGrantedAuthority(role.getName()));
+					}*/
+					for(int i=0;i<rolesTest.length;i++) {
+						authorities.add(new SimpleGrantedAuthority(rolesTest[i].getName()));
+
+					}
+					//authorities.add(new SimpleGrantedAuthority(rolesTest[0]));
+					System.out.println("authorities : "+authorities);
+
 					UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 							userName, null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -65,7 +74,7 @@ public class AuthorisationFilter extends OncePerRequestFilter {
 					filterChain.doFilter(request, response); // let user connect
 
 				} catch (Exception e) {
-					System.out.println("error login : "+e.getMessage());
+					System.out.println("error authorisation  : "+e.getMessage());
 					response.setHeader("error ", e.getMessage());
 					//response.sendError(Forbidden.value());
 					
