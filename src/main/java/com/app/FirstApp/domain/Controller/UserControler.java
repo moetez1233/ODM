@@ -18,19 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 
@@ -38,6 +32,7 @@ import com.app.FirstApp.domain.Entity.Role;
 import com.app.FirstApp.domain.Entity.User;
 import com.app.FirstApp.domain.Entity.UserResp;
 import com.app.FirstApp.domain.Repository.UserRepo;
+import com.app.FirstApp.domain.Security.UserRolesService;
 import com.app.FirstApp.domain.Services.UserServiceImpl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -46,22 +41,26 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+@CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api")
 public class UserControler {
 	@Autowired
 	private UserServiceImpl UserServiceImpl;
-
+@Autowired
+private UserRolesService userRolesService;
 	@GetMapping("users")
-	public ResponseEntity<List<UserResp>> getAllUsers() {
-		
+	public ResponseEntity<List<UserResp>> getAllUsers(HttpServletRequest request) {
+		String RoleSerched="consulter_users";
+		Boolean Verif =userRolesService.getRoleUser(request,RoleSerched);
+		if(!Verif)throw new RuntimeException("permission denied");
 		return ResponseEntity.ok(UserServiceImpl.getUsers());
 
 	}
 
-	@PostMapping("users/save")
+	@PostMapping("/users/save")
 	public ResponseEntity<UserResp> SaveUsers(@RequestBody User user) {
+		System.out.println("user"+user);
 		URI uri = URI.create((ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toString()));
 		return ResponseEntity.created(uri).body(UserServiceImpl.saveUser(user));
 

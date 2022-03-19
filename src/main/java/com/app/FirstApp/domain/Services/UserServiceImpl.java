@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.app.FirstApp.domain.Entity.Role;
 import com.app.FirstApp.domain.Entity.User;
@@ -19,7 +20,7 @@ import com.app.FirstApp.domain.Entity.UserResp;
 import com.app.FirstApp.domain.Repository.RoleRepo;
 import com.app.FirstApp.domain.Repository.UserRepo;
 import com.app.FirstApp.domain.SaveMethodes.CryptID;
-
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @Service
 public class UserServiceImpl implements UserService {
 	private static final long serialVersionUID = -833637346442153773L;//auto generated 
@@ -44,6 +45,8 @@ public class UserServiceImpl implements UserService {
 	
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		String generate_User=cryptId.generateUserid(30);
+		user.setUserId(generate_User);
 		UserResp returnVal = new UserResp();
 		User userSAved = userRepo.save(user);
 		BeanUtils.copyProperties(userSAved, returnVal);
@@ -96,7 +99,12 @@ public class UserServiceImpl implements UserService {
 		User userUp = userRepo.findByEmail(user.getEmail());
 		if (userUp == null)
 			throw new RuntimeException("User not exist ");
+		userUp.setUserId(user.getUserId());
 		userUp.setName(user.getName());
+		userUp.setLastName(user.getLastName());
+		userUp.setAdress(user.getAdress());
+		userUp.setCin(user.getCin());
+		userUp.setPhone_number(user.getPhone_number());
 		userUp.setEmail(user.getEmail());
 		userUp.setRoles(user.getRoles());
 		User newUser = userRepo.save(userUp);

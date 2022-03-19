@@ -12,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,78 +23,100 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.app.FirstApp.domain.Entity.UserConnect;
+import com.app.FirstApp.domain.Entity.UserResp;
+import com.app.FirstApp.domain.Services.UserServiceImpl;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CustumAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	private final AuthenticationManager authenticationManager;
-	
+	@Autowired
+	private UserServiceImpl UserServiceImpl;
+
 	public CustumAuthenticationFilter(AuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
 	}
-	
-	
+
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		//String email=request.getParameter("email");
-		//String password=request.getParameter("password");
-		
-		//UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(email,password);
-	//return authenticationManager.authenticate(authenticationToken);
-	
-	
-	
-	try {
-		UserConnect userConnect = new ObjectMapper().readValue(request.getInputStream(),
-				UserConnect.class);//send req.getInputStream() to UserLoginRequestModel Model
-		//logger.info("creds is : " + creds.getPassword());
+		// String email=request.getParameter("email");
+		// String password=request.getParameter("password");
 
-		return authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(userConnect.getEmail(), userConnect.getPassword()
+		// UsernamePasswordAuthenticationToken authenticationToken=new
+		// UsernamePasswordAuthenticationToken(email,password);
+		// return authenticationManager.authenticate(authenticationToken);
 
-				));
-	} catch (IOException e) {
-		throw new RuntimeException(e);
-	}
+		try {
+			UserConnect userConnect = new ObjectMapper().readValue(request.getInputStream(), UserConnect.class);// send
+																												// req.getInputStream()
+																												// to
+																												// UserLoginRequestModel
+																												// Model
+			// logger.info("creds is : " + creds.getPassword());
+
+			return authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(userConnect.getEmail(), userConnect.getPassword()
+
+					));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
 			Authentication authentication) throws IOException, ServletException {
-	User user=(User) authentication.getPrincipal();
-	Algorithm algotithm=Algorithm.HMAC256("secret".getBytes());
-	String access_Token=JWT.create()
-			.withSubject(user.getUsername())
-			.withExpiresAt(new Date(System.currentTimeMillis() +10 *60*1000))
-			.withIssuer(request.getRequestURL().toString())
-			.withClaim("roles",user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-			.sign(algotithm);
+		User user = (User) authentication.getPrincipal();
+		Algorithm algotithm = Algorithm.HMAC256("secret".getBytes());
+		String access_Token = JWT.create().withSubject(user.getUsername())
+				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+				.withIssuer(request.getRequestURL().toString())
+				.withClaim("roles",
+						user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+				.sign(algotithm);
 
-	/* ========================= refresh token ==========================*/
-	String refresh_Token=JWT.create()
-			.withSubject(user.getUsername())
-			.withExpiresAt(new Date(System.currentTimeMillis() +30 *60*1000))
-			.withIssuer(request.getRequestURL().toString())
-			.sign(algotithm);
-	/*========================== end refresh token ======================*/
-	//response.setHeader("refresh_Token", refresh_Token);
-	//response.setHeader("access_Token", access_Token);
-	Map<String,String> tokens=new HashMap<>();
-	tokens.put("access_Token", access_Token);
-	tokens.put("refresh_Token", refresh_Token);
-	tokens.put("userName", user.getUsername());
-	tokens.put("Roles", user.getAuthorities().toString());
+		/* ========================= refresh token ========================== */
+		String refresh_Token = JWT.create().withSubject(user.getUsername())
+				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+				.withIssuer(request.getRequestURL().toString()).sign(algotithm);
+		/* ========================== end refresh token ====================== */
+		/*
+		 * ========================== get the success connect user 	 * =========================*/
+		 
 	
+		com.app.FirstApp.domain.Services.UserService userService = (com.app.FirstApp.domain.Services.UserService) com.app.FirstApp.SpringApplicationContext
+				.getBean("userServiceImpl");// Conteneur d'objet
+		com.app.FirstApp.domain.Entity.User userDto = userService.getUser(user.getUsername());// to get the user who
+																								// sucess connect
+		//System.out.println("user login : " + userDto);
+		UserResp returnVal = new UserResp();
+		BeanUtils.copyProperties(userDto, returnVal);
 
-	response.setContentType("APPLICATION_JSON_VALUE");
-	new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+		/*
+		 * ============================ end get success connect user
+		 * ==============================
+		 */
+		Map<String, String> tokens = new HashMap<>();
+		tokens.put("access_Token", access_Token);
+		tokens.put("refresh_Token", refresh_Token);
+		tokens.put("UserConnect", returnVal.toString());
+		// tokens.put("userName", user.getUsername());
+		// tokens.put("Roles", user.getAuthorities().toString());
 
-	
+		response.setContentType("APPLICATION_JSON_VALUE");
+		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 
-	
 	}
-	
+
+	@Override
+	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException failed) throws IOException, ServletException {
+		// TODO Auto-generated method stub
+		
+		 response.setContentType("APPLICATION_JSON_VALUE");
+			new ObjectMapper().writeValue(response.getOutputStream(), failed.getMessage());
+	}
 
 }

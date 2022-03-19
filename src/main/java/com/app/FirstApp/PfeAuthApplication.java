@@ -14,7 +14,11 @@ import com.app.FirstApp.domain.Entity.Role;
 import com.app.FirstApp.domain.Entity.User;
 import com.app.FirstApp.domain.SaveMethodes.CryptID;
 import com.app.FirstApp.domain.Services.UserService;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@CrossOrigin(origins="*")
 @SpringBootApplication
 public class PfeAuthApplication {
 
@@ -26,6 +30,19 @@ public class PfeAuthApplication {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	@Bean
+	public SpringApplicationContext springApplicationContext() {
+		return new SpringApplicationContext();
+	}
+	/*@Bean
+	public WebMvcConfigurer corsConfigurer(){
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/*").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*")
+                .allowedHeaders("*");		}
+		};
+	}*/
 	
 @Bean
 	CommandLineRunner run(UserService userService) {
@@ -46,8 +63,8 @@ public class PfeAuthApplication {
 			roles.add(new Role("ajouter_users"));
 			roles.add(new Role("add_Sf"));
 			System.out.println("role main : "+roles);
-			userService.saveUser(new User("Admin", "moetezmaddouri13@gmail.com", "root123", roles));*/
-
+			userService.saveUser(new User("Admin","maddouri","Tunis-ariana","099123","55611346", "root1235@gmail.com", "root123", roles));
+*/
 			
 		};
 	}
