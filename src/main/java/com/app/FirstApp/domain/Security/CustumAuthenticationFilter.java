@@ -41,20 +41,8 @@ public class CustumAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		// String email=request.getParameter("email");
-		// String password=request.getParameter("password");
-
-		// UsernamePasswordAuthenticationToken authenticationToken=new
-		// UsernamePasswordAuthenticationToken(email,password);
-		// return authenticationManager.authenticate(authenticationToken);
-
 		try {
 			UserConnect userConnect = new ObjectMapper().readValue(request.getInputStream(), UserConnect.class);// send
-																												// req.getInputStream()
-																												// to
-																												// UserLoginRequestModel
-																												// Model
-			// logger.info("creds is : " + creds.getPassword());
 
 			return authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(userConnect.getEmail(), userConnect.getPassword()
@@ -70,8 +58,26 @@ public class CustumAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			Authentication authentication) throws IOException, ServletException {
 		User user = (User) authentication.getPrincipal();
 		Algorithm algotithm = Algorithm.HMAC256("secret".getBytes());
+		/*
+		 * ========================== get the success connect user 	 * =========================*/
+		 
+	
+		/*com.app.FirstApp.domain.Services.UserService userService = (com.app.FirstApp.domain.Services.UserService) com.app.FirstApp.SpringApplicationContext
+				.getBean("userServiceImpl");// Conteneur d'objet
+		com.app.FirstApp.domain.Entity.User userDto = userService.getUser(user.getUsername());// to get the user who
+																								// sucess connect
+		//System.out.println("user login : " + userDto);
+		UserResp returnVal = new UserResp();
+		BeanUtils.copyProperties(userDto, returnVal);*/
+
+		/*
+		 * ============================ end get success connect user
+		 * ==============================
+		 */
+		
+		
 		String access_Token = JWT.create().withSubject(user.getUsername())
-				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+				.withExpiresAt(new Date(System.currentTimeMillis() + 50 * 60 * 1000))
 				.withIssuer(request.getRequestURL().toString())
 				.withClaim("roles",
 						user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
@@ -82,26 +88,11 @@ public class CustumAuthenticationFilter extends UsernamePasswordAuthenticationFi
 				.withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
 				.withIssuer(request.getRequestURL().toString()).sign(algotithm);
 		/* ========================== end refresh token ====================== */
-		/*
-		 * ========================== get the success connect user 	 * =========================*/
-		 
-	
-		com.app.FirstApp.domain.Services.UserService userService = (com.app.FirstApp.domain.Services.UserService) com.app.FirstApp.SpringApplicationContext
-				.getBean("userServiceImpl");// Conteneur d'objet
-		com.app.FirstApp.domain.Entity.User userDto = userService.getUser(user.getUsername());// to get the user who
-																								// sucess connect
-		//System.out.println("user login : " + userDto);
-		UserResp returnVal = new UserResp();
-		BeanUtils.copyProperties(userDto, returnVal);
-
-		/*
-		 * ============================ end get success connect user
-		 * ==============================
-		 */
+		
 		Map<String, String> tokens = new HashMap<>();
 		tokens.put("access_Token", access_Token);
 		tokens.put("refresh_Token", refresh_Token);
-		tokens.put("UserConnect", returnVal.toString());
+		
 		// tokens.put("userName", user.getUsername());
 		// tokens.put("Roles", user.getAuthorities().toString());
 

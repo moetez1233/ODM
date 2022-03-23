@@ -27,7 +27,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-
 import com.app.FirstApp.domain.Entity.Role;
 import com.app.FirstApp.domain.Entity.User;
 import com.app.FirstApp.domain.Entity.UserResp;
@@ -41,26 +40,29 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class UserControler {
 	@Autowired
 	private UserServiceImpl UserServiceImpl;
-@Autowired
-private UserRolesService userRolesService;
+	@Autowired
+	private UserRolesService userRolesService;
+
 	@GetMapping("users")
 	public ResponseEntity<List<UserResp>> getAllUsers(HttpServletRequest request) {
-		String RoleSerched="consulter_users";
-		Boolean Verif =userRolesService.getRoleUser(request,RoleSerched);
-		if(!Verif)throw new RuntimeException("permission denied");
+		String RoleSerched = "consulter_users";
+		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
+		if (!Verif)
+			throw new RuntimeException("permission denied");
 		return ResponseEntity.ok(UserServiceImpl.getUsers());
 
 	}
 
 	@PostMapping("/users/save")
 	public ResponseEntity<UserResp> SaveUsers(@RequestBody User user) {
-		System.out.println("user"+user);
+		System.out.println("user" + user);
 		URI uri = URI.create((ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/save").toString()));
 		return ResponseEntity.created(uri).body(UserServiceImpl.saveUser(user));
 
@@ -116,20 +118,29 @@ private UserRolesService userRolesService;
 		}
 
 	}
-	
-	
+
 	// update employee
-		 @PutMapping("users/update")
-		    public ResponseEntity<UserResp> updateEmployee(
-		         @Validated @RequestBody User userReq) {
-			return ResponseEntity.ok(UserServiceImpl.updateUser(userReq));
-		     
-		    }
-		 @DeleteMapping("users/delete/{email}")
-		 public Map<String, Boolean> deleteUser (@PathVariable(value = "email") String userEmail) {
-			 UserServiceImpl.deletUser(userEmail);
-		        Map<String, Boolean> response = new HashMap<>(); // to create that employee deleted and status true (juste traja3  message deleted)
-		        response.put("User Deleted", true);
-		        return response;
-		 }
+	@PutMapping("users/update")
+	public ResponseEntity<UserResp> updateEmployee(HttpServletRequest request,@Validated @RequestBody User userReq) {
+		String RoleSerched = "consulter_users";
+		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
+		if (!Verif)
+			throw new RuntimeException("permission denied");
+		return ResponseEntity.ok(UserServiceImpl.updateUser(userReq));
+
+	}
+
+	@DeleteMapping("users/delete/{email}")
+	public Map<String, Boolean> deleteUser(HttpServletRequest request,
+			@PathVariable(value = "email") String userEmail) {
+		String RoleSerched = "consulter_users";
+		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
+		if (!Verif)
+			throw new RuntimeException("permission denied");
+		UserServiceImpl.deletUser(userEmail);
+		Map<String, Boolean> response = new HashMap<>(); // to create that employee deleted and status true (juste
+															// traja3 message deleted)
+		response.put("UserDeleted", true);
+		return response;
+	}
 }
