@@ -40,7 +40,7 @@ public class UserRolesService {
 				System.out.println("authorities : " + authorities);
 				for (Role x : authorities) {
 					if (x.getName().equals(RoleSerched)) {
-						System.out.println("role: " + x.getName().equalsIgnoreCase("consulter_users"));
+						System.out.println("role: " + x.getName().equalsIgnoreCase(RoleSerched));
 						message = true;
 					}
 

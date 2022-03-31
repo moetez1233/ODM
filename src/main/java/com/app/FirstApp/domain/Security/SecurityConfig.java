@@ -51,17 +51,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		/* ==================== end change Url =======================*/
 		http.cors().disable();
 		http.csrf().disable();
+
+				/*.antMatcher("/**")
+				.authorizeRequests().and()
+				.httpBasic()
+				.and()
+				.authorizeRequests().anyRequest().authenticated().and().cors();*/
 	
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.authorizeRequests().antMatchers("/login","/api/token/refresh/**").permitAll();
-		http.authorizeHttpRequests().anyRequest().permitAll();
-	
-		/*http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/**").hasAnyAuthority("consulter_users"); //authorize only role =role_User to pass requet GET :http://localhost:9098/api/users
-		http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/save/**").hasAnyAuthority("ajouter_users"); //authorize only role =role_User to pass requet POST :http://localhost:9098/api/users/save
-		http.authorizeRequests().antMatchers(HttpMethod.PUT,"/api/users/update/**").hasAnyAuthority("consulter_users"); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/update
-		http.authorizeRequests().antMatchers(HttpMethod.DELETE,"/api/users/delete/**").hasAnyAuthority("spprimer_users"); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
-	
-		http.authorizeRequests().anyRequest().authenticated();*/
+		//http.authorizeHttpRequests().anyRequest().permitAll();
+
+		http.csrf().disable()
+				.authorizeRequests().antMatchers(HttpMethod.GET,"/api/users").hasAnyAuthority("consulter_users").and().cors(); //authorize only role =role_User to pass requet GET :http://localhost:9098/api/users
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.PUT,"/api/users/update/**").hasAnyAuthority("consulter_users").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/update
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.DELETE,"/api/users/delete/**").hasAnyAuthority("consulter_users").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/save/**").hasAnyAuthority("ajouter_users").and().cors(); //authorize only role =role_User to pass requet POST :http://localhost:9098/api/users/save
+
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/uploadSf/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/getSf/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/addHistQSf/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+
+		http.authorizeRequests().anyRequest().authenticated();
 		/* =============== our filtre =================== */
 		http.addFilter(custumAuthenticationFilter);
 		http.addFilterBefore(new AuthorisationFilter(), UsernamePasswordAuthenticationFilter.class);

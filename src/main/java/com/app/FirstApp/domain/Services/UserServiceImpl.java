@@ -86,10 +86,11 @@ public class UserServiceImpl implements UserService {
 		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		// System.out.println("user_implementation : "+user.getRoles());
 		Collection<Role> roles = user.getRoles();
+
 		for (Role role : roles) {
 			authorities.add(new SimpleGrantedAuthority(role.getName()));
 		}
-		// System.out.println("authorities "+authorities);
+		 System.out.println("authorities user serviceImpl "+authorities);
 
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
 	}

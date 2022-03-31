@@ -34,15 +34,15 @@ public class PfeAuthApplication {
 	public SpringApplicationContext springApplicationContext() {
 		return new SpringApplicationContext();
 	}
-	/*@Bean
+	@Bean
 	public WebMvcConfigurer corsConfigurer(){
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/*").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*")
+				registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*")
                 .allowedHeaders("*");		}
 		};
-	}*/
+	}
 	
 @Bean
 	CommandLineRunner run(UserService userService) {
@@ -58,12 +58,12 @@ public class PfeAuthApplication {
 			List<Role> rolesUser2 =new ArrayList<>();
 			rolesUser2.add(new Role("consulter_users"));
 			userService.saveUser(new User("moetez", "moetezmaddouri@gmail.com", "root123", rolesUser2));*/
-			/*List<Role> roles =new ArrayList<>();
+		/*	List<Role> roles =new ArrayList<>();
 			roles.add(new Role("consulter_users"));
 			roles.add(new Role("ajouter_users"));
-			roles.add(new Role("add_Sf"));
+			roles.add(new Role("Ajouter_SF"));
 			System.out.println("role main : "+roles);
-			userService.saveUser(new User("Admin","maddouri","Tunis-ariana","099123","55611346", "root1235@gmail.com", "root123", roles));
+			userService.saveUser(new User("Admin","maddouri","Tunis-ariana","099123","55611346", "test1@gmail.com", "root123", roles));
 */
 			
 		};

@@ -3,6 +3,7 @@ package com.app.FirstApp.domain.Controller;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,8 +16,17 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.app.FirstApp.domain.Entity.*;
+
+import com.app.FirstApp.domain.SaveMethodes.VerifXML;
+import com.app.FirstApp.domain.Services.FileUoladService;
+import com.app.FirstApp.domain.Services.HistoriqueSfImplem;
+import com.app.FirstApp.domain.Services.ShipmentFileServiImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,11 +35,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.app.FirstApp.domain.Entity.Role;
-import com.app.FirstApp.domain.Entity.User;
-import com.app.FirstApp.domain.Entity.UserResp;
 import com.app.FirstApp.domain.Repository.UserRepo;
 import com.app.FirstApp.domain.Security.UserRolesService;
 import com.app.FirstApp.domain.Services.UserServiceImpl;
@@ -43,6 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @CrossOrigin(origins = "*")
 @RestController
+
 @RequestMapping("/api")
 public class UserControler {
 	@Autowired
@@ -50,12 +59,30 @@ public class UserControler {
 	@Autowired
 	private UserRolesService userRolesService;
 
+	@Autowired
+	private ShipmentFileServiImpl shipmentFileServiImpl;
+
+	@Autowired
+	private HistoriqueSfImplem historiqueSfImplem;
+
+	@Autowired
+	private VerifXML verifXML;
+
+	@Autowired
+	private FileUoladService fileUoladService;
+
+
+	private static Logger logger = LoggerFactory.getLogger(UserControler.class);
+
+
+
 	@GetMapping("users")
-	public ResponseEntity<List<UserResp>> getAllUsers(HttpServletRequest request) {
-		String RoleSerched = "consulter_users";
+	public ResponseEntity<List<UserResp>> getAllUsers() {
+		/*String RoleSerched = "consulter_users";
 		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
+		System.out.println("controlller : "+Verif);
 		if (!Verif)
-			throw new RuntimeException("permission denied");
+			throw new RuntimeException("permission denied");*/
 		return ResponseEntity.ok(UserServiceImpl.getUsers());
 
 	}
@@ -122,25 +149,86 @@ public class UserControler {
 	// update employee
 	@PutMapping("users/update")
 	public ResponseEntity<UserResp> updateEmployee(HttpServletRequest request,@Validated @RequestBody User userReq) {
-		String RoleSerched = "consulter_users";
-		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
-		if (!Verif)
-			throw new RuntimeException("permission denied");
 		return ResponseEntity.ok(UserServiceImpl.updateUser(userReq));
 
 	}
 
 	@DeleteMapping("users/delete/{email}")
-	public Map<String, Boolean> deleteUser(HttpServletRequest request,
+	public Map<String, Boolean> deleteUser(
 			@PathVariable(value = "email") String userEmail) {
-		String RoleSerched = "consulter_users";
-		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
-		if (!Verif)
-			throw new RuntimeException("permission denied");
+
 		UserServiceImpl.deletUser(userEmail);
 		Map<String, Boolean> response = new HashMap<>(); // to create that employee deleted and status true (juste
 															// traja3 message deleted)
 		response.put("UserDeleted", true);
 		return response;
 	}
+	/* ================================= SHipmentFile ========================= */
+	/*@PostMapping("/users/saveSF/{emailUser}")
+	public String saveShipmentFile(HttpServletRequest request,
+								   @RequestBody ShipmentFile shipmentFile,
+								   @RequestParam("file") MultipartFile file,
+								   @PathVariable (value = "emailUser") String emailUser){
+		String RoleSerched = "consulter_users";
+		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
+		if (!Verif)
+			throw new RuntimeException("permission denied");
+
+		ShipmentFile sf=shipmentFileServiImpl.saveShipmentFile(shipmentFile,emailUser);
+		return "L'ajout du ShipmentFile est réussi";
+	}*/
+	@PostMapping("/users/uploadSf/{emailUser}")
+	public ResponseEntity<String> uploadData(   @PathVariable (value = "emailUser") String emailUser,@RequestParam("file") MultipartFile file) throws Exception {
+		if (file == null) {
+			throw new RuntimeException("You must select the a file for uploading");
+		}
+ShipmentFile verifExist=shipmentFileServiImpl.getShipmentFile((file.getOriginalFilename()));
+		if(verifExist !=null) throw new RuntimeException("Upload echoué  ShipmentFile"+file.getOriginalFilename() +" deja existe ");
+
+		Boolean VerifXmlFile=verifXML.validateXMLSchema("C:/test1/houses.xsd","C:/test1/houses.xml");
+		if(!VerifXmlFile) throw new RuntimeException("xml  est invalid ");
+
+		fileUoladService.upladFileInRepo(file);
+		String originalName = file.getOriginalFilename();
+		String name = file.getName();
+		ShipmentFile sfadded=new ShipmentFile();
+		sfadded.setName(originalName);
+		sfadded.setType_compteur("Gaz");
+		sfadded.setStatus("Provisioned");
+
+		// Do processing with uploaded file data in Service layer
+		return ResponseEntity.ok().body(shipmentFileServiImpl.saveShipmentFile(sfadded, emailUser));
+	}
+
+	/* ========================= ShipmentFile ===============================*/
+
+	/*@PostMapping("/users/addUseSf")
+	public ResponseEntity<String> addUserToSf(HttpServletRequest request,@RequestBody DataAddSf dataAddSf){
+		String RoleSerched = "consulter_users";
+		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
+		if (!Verif)
+			throw new RuntimeException("permission denied");
+		System.out.println("dataAddSf :"+dataAddSf);
+		return ResponseEntity.ok(shipmentFileServiImpl.addUserToShipmentFile(dataAddSf.getEmail(),dataAddSf.getName()));
+
+
+	}*/
+
+	      /* ================= historique Sf ===============*/
+	@PostMapping("/users/addHistQSf/{name}")
+	public ResponseEntity<HistoriqSF> addHistorique(@PathVariable(value = "name") String name,@RequestBody HistoriqSF historiqSF){
+
+		return ResponseEntity.ok(historiqueSfImplem.SaveHistoriq(historiqSF,name));
+	}
+@GetMapping("/users/getSf/{name}")
+	public ResponseEntity<ShipmentFile> getSf(@PathVariable (value = "name") String name){
+		return ResponseEntity.ok(shipmentFileServiImpl.getShipmentFile(name));
+
+}
+
+
+
+
+	    /* ================= end  historique Sf ===============*/
+	/* ================================== end Sf ===============================*/
 }

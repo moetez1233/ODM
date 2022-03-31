@@ -81,13 +81,14 @@ public class AuthorisationFilter extends OncePerRequestFilter {
 						authorities.add(new SimpleGrantedAuthority(rolesTest[i].getName()));
 
 					}
-					System.out.println("authorities : "+authorities);
+					System.out.println("authorities filter : "+authorities);
 
 					UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
 							userName, null, authorities);
 					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-					
+					System.out.println("wsol1");
 					filterChain.doFilter(request, response); // let user connect
+					System.out.println("wsol2");
 
 				} catch (Exception e) {
 					System.out.println("error authorisation  : "+e.getMessage());
