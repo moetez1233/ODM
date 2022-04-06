@@ -69,7 +69,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/save/**").hasAnyAuthority("ajouter_users").and().cors(); //authorize only role =role_User to pass requet POST :http://localhost:9098/api/users/save
 
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/uploadSf/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
-		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/getSf/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/getSf").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/getSfStat/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+
+		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET,"/api/users/getListSf").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
+
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.POST,"/api/users/addHistQSf/**").hasAnyAuthority("Ajouter_SF").and().cors(); //authorize only role =role_User to pass requet PUT :http://localhost:9098/api/users/delete
 
 		http.authorizeRequests().anyRequest().authenticated();

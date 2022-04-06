@@ -1,15 +1,16 @@
 package com.app.FirstApp.domain.Services;
 
-import com.app.FirstApp.domain.Entity.HistPrimId;
-import com.app.FirstApp.domain.Entity.HistoriqSF;
-import com.app.FirstApp.domain.Entity.ShipmentFile;
-import com.app.FirstApp.domain.Entity.User;
+import com.app.FirstApp.domain.Entity.*;
 import com.app.FirstApp.domain.Repository.HistoriqSfRepo;
 import com.app.FirstApp.domain.Repository.ShipmentfileRepo;
 import com.app.FirstApp.domain.Repository.UserRepo;
+import com.app.FirstApp.domain.SaveMethodes.StatusConstant;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ShipmentFileServiImpl implements ShipmentFileService{
@@ -31,12 +32,13 @@ public class ShipmentFileServiImpl implements ShipmentFileService{
 
 
     @Override
-    public String saveShipmentFile(ShipmentFile shipmentFile, String emailUser) {
-        /*ShipmentFile VerifExistSf=shipmentfileRepo.findByName(shipmentFile.getName());
-if(VerifExistSf !=null)throw new RuntimeException(shipmentFile.getName() +" est déja exist");*/
+    public ShipmentFile saveShipmentFile(ShipmentFile shipmentFile, String emailUser) {
+
         /* ============================= end add user to sf =======================*/
 
             User userSF = userRepo.findByEmail(emailUser);
+            UserResp returnVal = new UserResp();
+        BeanUtils.copyProperties(userSF,returnVal);
             shipmentFile.setUser(userSF);
             /* ============================= end add user to sf =======================*/
 
@@ -45,31 +47,30 @@ if(VerifExistSf !=null)throw new RuntimeException(shipmentFile.getName() +" est 
             /* add hist to sf */
             HistPrimId hsPriK = new HistPrimId(sf.getId());
             System.out.println("hsprk= " + hsPriK);
-            HistoriqSF hsf = new HistoriqSF(hsPriK, "To treat", "First Upload");
+            HistoriqSF hsf = new HistoriqSF(hsPriK, StatusConstant.Status1, StatusConstant.Raison1);
 
             historiqueSfImplem.SaveHistoriq(hsf, shipmentFile.getName());
             /* end add hist sf */
 
 
-        return "ShipmentFile " + shipmentFile.getName() + " est ajouter ";
+        return sf;
     }
 
-    @Override
-    public String addUserToShipmentFile(String emailUser, String nameSF) {
 
-        User userSF=userRepo.findByEmail(emailUser);
-        System.out.println("UserSf : "+userSF.toString());
-        ShipmentFile sf=shipmentfileRepo.findByName(nameSF);
-        System.out.println("sf : "+sf.toString());
-        sf.setUser(userSF);
-        shipmentfileRepo.save(sf);
-        return "sf add";
-
-    }
 
     @Override
     public ShipmentFile getShipmentFile(String name) {
         return shipmentfileRepo.findByName(name);
+    }
+
+    @Override
+    public List<ShipmentFile> getSFWithStatus(String status) {
+        return shipmentfileRepo.findByStatus(status);
+    }
+
+    @Override
+    public List<ShipmentFile> getAllSHipmentFile() {
+        return shipmentfileRepo.findAll();
     }
 
 

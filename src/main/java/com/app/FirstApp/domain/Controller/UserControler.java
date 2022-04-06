@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.app.FirstApp.domain.Entity.*;
 
+import com.app.FirstApp.domain.SaveMethodes.StatusConstant;
 import com.app.FirstApp.domain.SaveMethodes.VerifXML;
 import com.app.FirstApp.domain.Services.FileUoladService;
 import com.app.FirstApp.domain.Services.HistoriqueSfImplem;
@@ -183,21 +184,31 @@ public class UserControler {
 			throw new RuntimeException("You must select the a file for uploading");
 		}
 ShipmentFile verifExist=shipmentFileServiImpl.getShipmentFile((file.getOriginalFilename()));
-		if(verifExist !=null) throw new RuntimeException("Upload echoué  ShipmentFile"+file.getOriginalFilename() +" deja existe ");
+		if(verifExist !=null) throw new RuntimeException("Upload echoué  ShipmentFile  "+file.getOriginalFilename() +" deja existe ");
+		//fileUoladService.SendToKms(file);
 
-		Boolean VerifXmlFile=verifXML.validateXMLSchema("C:/test1/houses.xsd","C:/test1/houses.xml");
+		fileUoladService.FirstUpload(file);
+		Boolean VerifXmlFile=verifXML.validateXMLSchema("F:\\Spring_boot\\traveaux\\PFE_Auth\\src\\main\\resources\\ValidXsd\\ShipmentFile.xsd","F:\\Spring_boot\\traveaux\\PFE_Auth\\src\\main\\resources\\ShipmentFiles\\"+file.getOriginalFilename());
 		if(!VerifXmlFile) throw new RuntimeException("xml  est invalid ");
 
-		fileUoladService.upladFileInRepo(file);
+
+
 		String originalName = file.getOriginalFilename();
 		String name = file.getName();
 		ShipmentFile sfadded=new ShipmentFile();
 		sfadded.setName(originalName);
 		sfadded.setType_compteur("Gaz");
-		sfadded.setStatus("Provisioned");
+		sfadded.setStatus(StatusConstant.Status1);
 
 		// Do processing with uploaded file data in Service layer
-		return ResponseEntity.ok().body(shipmentFileServiImpl.saveShipmentFile(sfadded, emailUser));
+		ShipmentFile sfUploaded=shipmentFileServiImpl.saveShipmentFile(sfadded, emailUser);
+
+		HistoriqSF hsSF=new HistoriqSF();
+		hsSF.setNomStatus(StatusConstant.Status2);
+		hsSF.setRaison(StatusConstant.Raison2);
+		HistoriqSF hsAdded =historiqueSfImplem.SaveHistoriq(hsSF,originalName);
+
+		return ResponseEntity.ok().body("ShipmentFile : "+sfUploaded.getName()+" est ajouter avec succé ");
 	}
 
 	/* ========================= ShipmentFile ===============================*/
@@ -215,15 +226,20 @@ ShipmentFile verifExist=shipmentFileServiImpl.getShipmentFile((file.getOriginalF
 	}*/
 
 	      /* ================= historique Sf ===============*/
-	@PostMapping("/users/addHistQSf/{name}")
-	public ResponseEntity<HistoriqSF> addHistorique(@PathVariable(value = "name") String name,@RequestBody HistoriqSF historiqSF){
 
-		return ResponseEntity.ok(historiqueSfImplem.SaveHistoriq(historiqSF,name));
-	}
 @GetMapping("/users/getSf/{name}")
 	public ResponseEntity<ShipmentFile> getSf(@PathVariable (value = "name") String name){
 		return ResponseEntity.ok(shipmentFileServiImpl.getShipmentFile(name));
 
+}
+@GetMapping("/users/getSfStat/{status}")
+public ResponseEntity<List<ShipmentFile>> getSfWithStatus(@PathVariable (value = "status") String status){
+	return ResponseEntity.ok(shipmentFileServiImpl.getSFWithStatus(status));
+}
+
+@GetMapping("/users/getListSf")
+	public ResponseEntity<List<ShipmentFile>> getAllSfipmentFile(){
+		return ResponseEntity.ok(shipmentFileServiImpl.getAllSHipmentFile());
 }
 
 

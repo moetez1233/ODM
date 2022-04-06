@@ -18,8 +18,9 @@ public class HistoriqueSfImplem implements  HistoriqSfService{
     public HistoriqSF SaveHistoriq(HistoriqSF historique,String name) {
         ShipmentFile sf=shipmentfileRepo.findByName(name);
         sf.setStatus(historique.getNomStatus());
+        shipmentfileRepo.save(sf);
         HistPrimId hsPriK=new HistPrimId(sf.getId());
-        System.out.println("hsprk= "+hsPriK);
+
         historique.setIdHistorique(hsPriK);
         historique.setShipmentFile(sf);
         return historiqSfRepo.save(historique);

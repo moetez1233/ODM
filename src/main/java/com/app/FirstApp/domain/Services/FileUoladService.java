@@ -9,8 +9,11 @@ import java.io.IOException;
 
 @Component
 public class FileUoladService {
-    public void upladFileInRepo(MultipartFile file) throws IOException {
-        file.transferTo(new File("C:\\test1\\SaveUpload\\"+file.getOriginalFilename()));
+    public void FirstUpload(MultipartFile file) throws IOException {
+        file.transferTo(new File("F:\\Spring_boot\\traveaux\\PFE_Auth\\src\\main\\resources\\ShipmentFiles\\"+file.getOriginalFilename()));
+    }
+    public void SendToKms(MultipartFile file) throws IOException {
+        file.transferTo(new File("C:\\test1\\kms"+file.getOriginalFilename()));
     }
 
 }

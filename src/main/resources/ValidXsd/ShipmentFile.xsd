@@ -1,0 +1,39 @@
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="ShipmentFile">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="main">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element type="xs:string" name="Company"/>
+              <xs:element type="xs:string" name="MeterType"/>
+              <xs:element type="xs:int" name="ConfigurationVerison"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Meters">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Meter" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="Mrid"/>
+                    <xs:element type="xs:string" name="DeviceName"/>
+                    <xs:element type="xs:short" name="type"/>
+                    <xs:element type="xs:short" name="ModelVersion"/>
+                    <xs:element type="xs:string" name="Status"/>
+                    <xs:element type="xs:string" name="Palet"/>
+                    <xs:element type="xs:string" name="AmRouter"/>
+                    <xs:element type="xs:string" name="Chanel"/>
+                    <xs:element type="xs:float" name="Latitude"/>
+                    <xs:element type="xs:float" name="Longitude"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,5 +1,7 @@
 package com.app.FirstApp.domain.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +19,7 @@ public class ShipmentFile {
     private String status;
     @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinColumn(name = "user_of_id")
+    @JsonIgnoreProperties(value = "password")
     private User user;
 
     @OneToMany(mappedBy = "shipmentFile",cascade = CascadeType.ALL,
