@@ -2,15 +2,17 @@ package com.app.FirstApp.domain.SaveMethodes;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-@Component
+@Service
 public class VerifXML {
 
     public  boolean validateXMLSchema(String xsdPath, String xmlPath){
@@ -28,4 +30,5 @@ public class VerifXML {
         }
         return true;
     }
+
 }

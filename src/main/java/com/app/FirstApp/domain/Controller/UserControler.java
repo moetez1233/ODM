@@ -5,6 +5,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -18,10 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.app.FirstApp.domain.Entity.*;
 
-import com.app.FirstApp.domain.SaveMethodes.StatusConstant;
-import com.app.FirstApp.domain.SaveMethodes.VerifXML;
-import com.app.FirstApp.domain.Services.FileUoladService;
-import com.app.FirstApp.domain.Services.HistoriqueSfImplem;
+
 import com.app.FirstApp.domain.Services.ShipmentFileServiImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,20 +55,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class UserControler {
 	@Autowired
 	private UserServiceImpl UserServiceImpl;
-	@Autowired
-	private UserRolesService userRolesService;
+
 
 	@Autowired
 	private ShipmentFileServiImpl shipmentFileServiImpl;
 
-	@Autowired
-	private HistoriqueSfImplem historiqueSfImplem;
 
-	@Autowired
-	private VerifXML verifXML;
-
-	@Autowired
-	private FileUoladService fileUoladService;
 
 
 	private static Logger logger = LoggerFactory.getLogger(UserControler.class);
@@ -164,68 +154,14 @@ public class UserControler {
 		response.put("UserDeleted", true);
 		return response;
 	}
-	/* ================================= SHipmentFile ========================= */
-	/*@PostMapping("/users/saveSF/{emailUser}")
-	public String saveShipmentFile(HttpServletRequest request,
-								   @RequestBody ShipmentFile shipmentFile,
-								   @RequestParam("file") MultipartFile file,
-								   @PathVariable (value = "emailUser") String emailUser){
-		String RoleSerched = "consulter_users";
-		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
-		if (!Verif)
-			throw new RuntimeException("permission denied");
 
-		ShipmentFile sf=shipmentFileServiImpl.saveShipmentFile(shipmentFile,emailUser);
-		return "L'ajout du ShipmentFile est réussi";
-	}*/
 	@PostMapping("/users/uploadSf/{emailUser}")
 	public ResponseEntity<String> uploadData(   @PathVariable (value = "emailUser") String emailUser,@RequestParam("file") MultipartFile file) throws Exception {
-		if (file == null) {
-			throw new RuntimeException("You must select the a file for uploading");
-		}
-ShipmentFile verifExist=shipmentFileServiImpl.getShipmentFile((file.getOriginalFilename()));
-		if(verifExist !=null) throw new RuntimeException("Upload echoué  ShipmentFile  "+file.getOriginalFilename() +" deja existe ");
-		//fileUoladService.SendToKms(file);
 
-		fileUoladService.FirstUpload(file);
-		Boolean VerifXmlFile=verifXML.validateXMLSchema("F:\\Spring_boot\\traveaux\\PFE_Auth\\src\\main\\resources\\ValidXsd\\ShipmentFile.xsd","F:\\Spring_boot\\traveaux\\PFE_Auth\\src\\main\\resources\\ShipmentFiles\\"+file.getOriginalFilename());
-		if(!VerifXmlFile) throw new RuntimeException("xml  est invalid ");
-
-
-
-		String originalName = file.getOriginalFilename();
-		String name = file.getName();
-		ShipmentFile sfadded=new ShipmentFile();
-		sfadded.setName(originalName);
-		sfadded.setType_compteur("Gaz");
-		sfadded.setStatus(StatusConstant.Status1);
-
-		// Do processing with uploaded file data in Service layer
-		ShipmentFile sfUploaded=shipmentFileServiImpl.saveShipmentFile(sfadded, emailUser);
-
-		HistoriqSF hsSF=new HistoriqSF();
-		hsSF.setNomStatus(StatusConstant.Status2);
-		hsSF.setRaison(StatusConstant.Raison2);
-		HistoriqSF hsAdded =historiqueSfImplem.SaveHistoriq(hsSF,originalName);
-
-		return ResponseEntity.ok().body("ShipmentFile : "+sfUploaded.getName()+" est ajouter avec succé ");
+		return ResponseEntity.ok(shipmentFileServiImpl.UploadSf(file,emailUser));
 	}
 
-	/* ========================= ShipmentFile ===============================*/
 
-	/*@PostMapping("/users/addUseSf")
-	public ResponseEntity<String> addUserToSf(HttpServletRequest request,@RequestBody DataAddSf dataAddSf){
-		String RoleSerched = "consulter_users";
-		Boolean Verif = userRolesService.getRoleUser(request, RoleSerched);
-		if (!Verif)
-			throw new RuntimeException("permission denied");
-		System.out.println("dataAddSf :"+dataAddSf);
-		return ResponseEntity.ok(shipmentFileServiImpl.addUserToShipmentFile(dataAddSf.getEmail(),dataAddSf.getName()));
-
-
-	}*/
-
-	      /* ================= historique Sf ===============*/
 
 @GetMapping("/users/getSf/{name}")
 	public ResponseEntity<ShipmentFile> getSf(@PathVariable (value = "name") String name){

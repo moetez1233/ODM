@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<ShipmentFile>
+<main>
+<Company>Talan</Company>
+<MeterType>ELEC</MeterType>
+<ConfigurationVerison>56852</ConfigurationVerison>
+</main>
+<Meters>
+  <Meter>
+  
+    <DeviceName>123 MAIN DRIVE,REDMOND</DeviceName>
+    <type>1500</type>
+    <ModelVersion>700</ModelVersion>
+    <Status>first</Status>
+    <Palet>aaa</Palet>
+    <AmRouter>aa</AmRouter>
+    <Chanel>aaaea</Chanel>
+    <Latitude>35.568160</Latitude>
+    <Longitude>8.672490</Longitude>
+  </Meter>
+  <Meter>
+    <Mrid>WA</Mrid>
+    <DeviceName>123 MAIN DRIVE,REDMOND</DeviceName>
+    <type>1500</type>
+    <ModelVersion>700</ModelVersion>
+    <Status>first</Status>
+    <Palet>aaa</Palet>
+    <AmRouter>aa</AmRouter>
+    <Chanel>aaaea</Chanel>
+    <Latitude>36.746980</Latitude>
+    <Longitude>10.119960</Longitude>
+  </Meter>
+  <Meter>
+    <Mrid>WA</Mrid>
+    <DeviceName>123 MAIN DRIVE,REDMOND</DeviceName>
+    <type>1500</type>
+    <ModelVersion>700</ModelVersion>
+    <Status>first</Status>
+    <Palet>aaa</Palet>
+    <AmRouter>aa</AmRouter>
+    <Chanel>aaaea</Chanel>
+    <Latitude>36.746980</Latitude>
+    <Longitude>10.119960</Longitude>
+  </Meter>
+</Meters>
+</ShipmentFile>
+
