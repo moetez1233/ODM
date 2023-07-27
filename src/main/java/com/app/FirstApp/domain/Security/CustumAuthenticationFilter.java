@@ -36,11 +36,11 @@ public class CustumAuthenticationFilter extends UsernamePasswordAuthenticationFi
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
-		//String email=request.getParameter("email");
-		//String password=request.getParameter("password");
+		/*String email=request.getParameter("email");
+		String password=request.getParameter("password");
 		
-		//UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(email,password);
-	//return authenticationManager.authenticate(authenticationToken);
+		UsernamePasswordAuthenticationToken authenticationToken=new UsernamePasswordAuthenticationToken(email,password);
+	return authenticationManager.authenticate(authenticationToken);*/
 	
 	
 	
